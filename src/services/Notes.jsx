@@ -1,6 +1,6 @@
 import axios from 'axios'
 const baseUrl = process.env.NODE_ENV === 'production'
-  ? 'https://backend-yprn.onrender.com/notes' // Production backend URL
+  ? 'https://backend-2-dgny.onrender.com/notes' // Production backend URL
   : 'http://localhost:3001/notes';
 
 const getAll = () => {
