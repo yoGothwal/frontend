@@ -15,7 +15,7 @@ const getAll = () => {
 
   const create = (newObject) => {
     return axios
-      .post('http://localhost:3001/persons', newObject)
+      .post(`${baseUrl}/persons`, newObject)
       .then(response => {
         return response;
       })
