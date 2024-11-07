@@ -36,11 +36,15 @@ const update = (id, newObject) => {
     console.log('fail')
   })
 }
+
 const remove = (id) => {
+  console.log("remove", id)
   return axios
   .delete(`${baseUrl}/${id}`)
   .then(response => {
+    console.log("deleted person")
     return response;
+    
   })
   .catch(error => {
     console.log('fail')
