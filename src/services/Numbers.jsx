@@ -1,8 +1,8 @@
-import axios from 'axios'
-const baseUrl = process.env.NODE_ENV === 'production'
-  ? 'https://backend-2-dgny.onrender.com/persons' // Production backend URL
-  : 'http://localhost:3001/persons';
+import axios from 'axios';
 
+const baseUrl = process.env.NODE_ENV === 'production' 
+  ? 'https://backend-2-dgny.onrender.com/persons' // Replace with your production URL
+  : 'http://localhost:3001/persons'; // For development mode
 const getAll = () => {
   return axios
     .get(baseUrl)
@@ -36,7 +36,6 @@ const update = (id, newObject) => {
     console.log('fail')
   })
 }
-
 const remove = (id) => {
   console.log("remove", id)
   return axios
@@ -50,6 +49,7 @@ const remove = (id) => {
     console.log('fail')
   })
 }
+
 
 export default { 
   getAll: getAll, 
