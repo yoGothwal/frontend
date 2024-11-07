@@ -61,10 +61,15 @@ const App = () => {
 
 
   const removeUser = (id)=>{
+    console.log("removeUser",id);
     numberService
     .remove(id)
     .then(response => {
-      setPersons(persons.filter(person => person.id !== id))
+      console.log("your data before :",response.data)
+      const newPersons = persons.filter(person => person.id !== id);
+      setPersons(newPersons);
+      console.log("your data after", persons)
+      return numberService.getAll();
       console.log("success deletion")
     })
   }
@@ -80,6 +85,12 @@ const App = () => {
   const handleSearch = ()=>{
     setFilteredPersons(results)
   }
+  useEffect(() => {
+    setFilteredPersons(persons.filter(person => 
+      person.name.toLowerCase().includes(search.toLowerCase())
+    ));
+  }, [persons, search]);  // This will run whenever 'persons' or 'search' changes
+  
 
   ////////
 //NOTES
