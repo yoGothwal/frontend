@@ -1,7 +1,9 @@
 import axios from 'axios'
 const baseUrl = process.env.NODE_ENV === 'production' 
   ? 'https://backend-2-dgny.onrender.com/notes' // Replace with your production URL
+
   : 'http://localhost:5000/notes'; // For development mode
+
 const getAll = () => {
     return axios
       .get(baseUrl)
