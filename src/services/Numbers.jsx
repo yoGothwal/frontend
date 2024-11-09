@@ -1,8 +1,8 @@
-import axios from 'axios'
-const baseUrl = process.env.NODE_ENV === 'production'
-  ? 'https://backend-yprn.onrender.com/persons' // Production backend URL
-  : 'http://localhost:3001/persons';
+import axios from 'axios';
 
+const baseUrl = process.env.NODE_ENV === 'production' 
+  ? 'https://backend-2-dgny.onrender.com/persons' // Replace with your production URL
+  : 'http://localhost:5000/persons'; // For development mode
 const getAll = () => {
   return axios
     .get(baseUrl)
@@ -15,7 +15,7 @@ const getAll = () => {
 
   const create = (newObject) => {
     return axios
-      .post('http://localhost:3001/api/persons', newObject)
+      .post(`${baseUrl}`, newObject)
       .then(response => {
         return response;
       })
@@ -37,15 +37,19 @@ const update = (id, newObject) => {
   })
 }
 const remove = (id) => {
+  console.log("remove", id)
   return axios
   .delete(`${baseUrl}/${id}`)
   .then(response => {
+    console.log("deleted person")
     return response;
+    
   })
   .catch(error => {
     console.log('fail')
   })
 }
+
 
 export default { 
   getAll: getAll, 

@@ -19,7 +19,7 @@ const App = () => {
   useEffect(()=>{
     numberService.getAll()
     .then(data=>{
-      console.log("NUMBERS: ",data)
+      console.log("NUMBERS:",data)
       setPersons(data)
     })
     
@@ -43,17 +43,19 @@ const App = () => {
       alert(`${newName} is already added to phonebook with number ${existingUser.name}`)
       return;
     }
-    const newPerson = { id: uuidv4(), name: newName, number: newNumber}
+    const newPerson = {name: newName, number: newNumber}
     
     numberService
     .create(newPerson)
     .then(response=> {
-      console.log(persons)
-      setPersons([...persons,response.data])
+      console.log(response.data)
+      const newPersons = persons.concat(response.data);
+      setPersons(newPersons);
       setMessage(`${newPerson.name} was added `)
       setTimeout(() => {
         setMessage(``)
       }, 2000);
+      console.log("Numbers",newPersons)
     })
     
     console.log('Button clicked', e.target)
@@ -61,12 +63,15 @@ const App = () => {
 
 
   const removeUser = (id)=>{
+    console.log("removeUser",id);
     numberService
-    .remove(id)
-    .then(response => {
-      setPersons(persons.filter(person => person.id !== id))
-      console.log("success deletion")
-    })
+    .remove(id).then(res =>{
+      const updatedPersons = persons.filter(person => person._id !== id);
+      setPersons(updatedPersons);
+      setMessage("Deleted")
+    }).catch(error => {
+      console.error("Failed to delete person:", error);
+    });
   }
   const [search, setSearch] = useState('');
   const [filteredPersons, setFilteredPersons] = useState(persons)
@@ -80,6 +85,12 @@ const App = () => {
   const handleSearch = ()=>{
     setFilteredPersons(results)
   }
+  useEffect(() => {
+    setFilteredPersons(persons.filter(person => 
+      person.name.toLowerCase().includes(search.toLowerCase())
+    ));
+  }, [persons, search]);  // This will run whenever 'persons' or 'search' changes
+  
 
   ////////
 //NOTES
@@ -88,7 +99,6 @@ const App = () => {
   const [showAll, setShowAll] = useState(true)
 
   useEffect(()=>{
-    //console.log("before render")
     noteService
     .getAll()
     .then(
@@ -109,7 +119,6 @@ const App = () => {
     const noteObject = {
       content: newNote,
       important: Math.random() < 0.5,
-      id: uuidv4()
     }
     
     noteService
@@ -117,7 +126,7 @@ const App = () => {
     .then(response => {
       setNotes(notes.concat(response.data))
       setNewNote('')
-      setMessage(`${noteObject.content} was added `)
+      setMessage(`Added `)
     })
 
     console.log('Button clicked', event.target)
@@ -142,7 +151,7 @@ const App = () => {
     })
     .catch(error => {
       setMessage(
-        `Note '${note.content}' was already removed from server`
+        `already removed`
       )
       setTimeout(() => {
         setErrorMessage(null)
@@ -158,9 +167,9 @@ const App = () => {
       .remove(id)
       .then(response => {
         // Correctly filter the notes to exclude the deleted note
-        const newNotes = notes.filter(note => note.id !== id)
+        const newNotes = notes.filter(note => note._id !== id)
         setNotes(newNotes); // Filter should return a boolean value
-        setMessage(`${response.data.content} was deleted `)
+        setMessage(`Deleted `)
       })
       .catch(error => {
         console.error("Failed to delete note:", error); // Handle error appropriately
@@ -339,9 +348,9 @@ const App = () => {
       <h4>Numbers</h4>
       <ul>
         {results.map(person => (
-          <li key={person.id}>
+          <li key={person._id}>
             {person.name}, {person.number} 
-            <button onClick={() => removeUser(person.id)}>Delete</button>
+            <button onClick={()=>removeUser(person._id)}>Delete</button>
           </li>
         ))}
       </ul>
@@ -368,10 +377,14 @@ const App = () => {
          show {showAll ? 'important' : 'all'}
        </button>
        <ul>
-         {notesToShow.map(note=>
-           <Note note={note} key={uuidv4()} handleNoteDelete={()=> handleNoteDelete(note.id)} toggleImportance={()=>toggleImportanceOfNote(note.id)}></Note>
-           
-         )}
+       {notesToShow.map(note =>
+        <Note 
+          note={note} 
+          key={note._id} // Use the note's id as the key
+          handleNoteDelete={() => handleNoteDelete(note._id)} 
+          toggleImportance={() => toggleImportanceOfNote(note._id)} 
+        />
+      )}
        </ul>
        <form onSubmit={addNote}>
          <input value ={newNote} onChange={handleNoteChange} />
