@@ -383,24 +383,7 @@ const App = () => {
        </form>
        <Footer></Footer>
      </div>
-     <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Name"
-        required
-      />
-      <CountryCodeDropdown onSelectCode={setCountryCode} />
-      <input
-        type="text"
-        value={phoneNumber}
-        onChange={(e) => setPhoneNumber(e.target.value)}
-        placeholder="Phone Number"
-        required
-      />
-      <button type="submit">Add</button>
-    </form>
+    
      
     </div>
   )
