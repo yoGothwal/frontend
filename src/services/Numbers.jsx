@@ -22,7 +22,7 @@ const getAll = () => {
         return response;
       })
       .catch(error => {
-        console.log("Failed to add person:", error);
+        console.error("Error:", error.response.data.error);
         throw error;
       });
   };

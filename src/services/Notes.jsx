@@ -19,8 +19,12 @@ const getAll = () => {
   
 
 const create = newObject => {
-  return axios.post(baseUrl, newObject).then(res=>{return res} ).catch((error =>{
-    console.log(error)
+  return axios.post(`${baseUrl}`, newObject)
+  .then(res=>{
+    return res
+  })
+  .catch((error =>{
+    console.log("Error:", error)
   }))
 }
 const remove = (id)=>{
@@ -34,18 +38,19 @@ const remove = (id)=>{
   })
 }
 const update = (id, newObject) => {
-  
-  
+  console.log(`Sending PUT request to update note with id: ${id}`);
   return axios
-  .put(`http://localhost:3001/notes/${id}`, newObject)
-  .then(response => {
-    console.log("updated",response)
-    return response;
-  })
-  .catch(error => {
-    console.log('fail')
-  })
-}
+      .put(`http://localhost:5000/notes/${id}`, newObject)
+      .then(response => {
+          console.log("Update successful:", response);
+          return response;
+      })
+      .catch(error => {
+          console.error("Update failed:", error.message);
+          throw error; // rethrow the error to handle it properly in toggleImportanceOfNote
+      });
+};
+
 
 export default { 
   getAll: getAll, 

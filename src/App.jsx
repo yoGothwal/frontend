@@ -48,17 +48,14 @@ const App = () => {
     numberService
     .create(newPerson)
     .then(response=> {
-      console.log(response.data)
       const newPersons = persons.concat(response.data);
       setPersons(newPersons);
       setMessage(`${newPerson.name} was added `)
-      setTimeout(() => {
-        setMessage(``)
-      }, 2000);
-      console.log("Numbers",newPersons)
     })
-    
-    console.log('Button clicked', e.target)
+    .catch(error=>{
+      console.log(error.response.data.error)
+      setMessage(error.response.data.error)
+    })
   }
 
 
@@ -120,47 +117,45 @@ const App = () => {
       content: newNote,
       important: Math.random() < 0.5,
     }
-    
     noteService
     .create(noteObject)
     .then(response => {
       setNotes(notes.concat(response.data))
       setNewNote('')
-      setMessage(`Added `)
+      setMessage(`Added "${newNote}"`);
     })
-
-    console.log('Button clicked', event.target)
-
+    .catch(error=>{
+      setMessage(error);
+    })
   }
   const handleNoteChange = (event)=>{
     console.log(event.target.value)
     setNewNote(event.target.value)
   }
-
   const toggleImportanceOfNote = id => {
-    
-    const note = notes.find(n => n.id === id)
-    const changedNote = { ...note, important: !note.important }
-  
-    
-    noteService.update(id, changedNote)
-    .then(response => {
-      console.log(response.data)
-      setNotes(notes.map(n => n.id === id ? response.data : n))
-      console.log("marked")
-    })
-    .catch(error => {
-      setMessage(
-        `already removed`
-      )
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
-      console.log("error",error.message)
-      setNotes(notes.filter(n => n.id !== id))
-    })
+    const note = notes.find(n => n._id === id);
+    console.log(note);
+    // Check if note exists before proceeding
+    if (!note) {
+        console.log("Note not found!");
+        return; // Exit the function if note is not found
+    }
 
-  }
+    const changedNote = { ...note, important: !note.important };
+    console.log(changedNote);
+
+    noteService.update(id, changedNote)
+        .then(response => {
+            console.log(response.data);
+            setNotes(notes.map(n => n._id === id ? response.data : n));
+            console.log("marked");
+        })
+        .catch(error => {
+            console.log("error", error.message);
+            setNotes(notes.filter(n => n._id !== id));
+        });
+};
+
 
   const handleNoteDelete = (id) => {
     noteService
@@ -288,6 +283,7 @@ const App = () => {
   return(
 
       <div>
+        {message ? <Notification msg= {message}></Notification> : null}
       <div className="parts">
         <h1>Weather</h1> 
         <form onSubmit={onWeatherSearch}>
@@ -366,13 +362,8 @@ const App = () => {
         </div>
       </form>
     </div>
-      
-      
-      
-      <br />
-      <div>
+      <div className="parts">
        <h1>Notes</h1>
-       {message ? <Notification msg= {message}></Notification> : null}
        <button onClick={()=> setShowAll(!showAll)}>
          show {showAll ? 'important' : 'all'}
        </button>
@@ -392,7 +383,25 @@ const App = () => {
        </form>
        <Footer></Footer>
      </div>
-
+     <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Name"
+        required
+      />
+      <CountryCodeDropdown onSelectCode={setCountryCode} />
+      <input
+        type="text"
+        value={phoneNumber}
+        onChange={(e) => setPhoneNumber(e.target.value)}
+        placeholder="Phone Number"
+        required
+      />
+      <button type="submit">Add</button>
+    </form>
+     
     </div>
   )
 
