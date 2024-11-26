@@ -1,35 +1,44 @@
 import axios from 'axios'
 const baseUrl = process.env.NODE_ENV === 'production' 
-  ? 'https://backend-2-dgny.onrender.com/notes' // Replace with your production URL
+  ? 'https://backend-2-dgny.onrender.com/notes'
+  : 'http://localhost:5000/notes';
 
-  : 'http://localhost:5000/notes'; // For development mode
+let token = null
 
-const getAll = () => {
-    return axios
-      .get(baseUrl)
-      .then(response => {
-        //console.log('response 1 ',response); // Log the data for debugging
-        return response
-      })
-      .catch(error => {
-        console.error('Failed to fetch notes:', error.message);
-        throw error.message; // Rethrow the error for further handling if needed
-      });
+const setToken = newToken => {
+  token = `Bearer ${newToken}`
+  console.log("Token set to:", token);
+}
+const getAll = async () => {
+  if (!token) {
+    console.error("Token is missing! Set the token before making requests.");
+    return;
+  }
+  console.log("getall re")
+    const config = {
+      headers: { Authorization: token },
+    }
+    console.log(config.headers);
+    const response = await axios.get(baseUrl, config)
+    return response
   };
   
 
-const create = newObject => {
-  return axios.post(`${baseUrl}`, newObject)
-  .then(res=>{
-    return res
-  })
-  .catch((error =>{
-    console.log("Error:", error)
-  }))
-}
+  const create = async newObject => {
+    const config = {
+      headers: { Authorization: token },
+    }
+  
+    const response = await axios.post(baseUrl, newObject, config)
+    return response
+  }
+  
 const remove = (id)=>{
+  const config = {
+    headers: { Authorization: token },
+  }
   return axios
-  .delete(`${baseUrl}/${id}`)
+  .delete(`${baseUrl}/${id}`, config)
   .then(response=>{
     return response;
   })
@@ -57,4 +66,5 @@ export default {
   create: create, 
   update: update,
   remove: remove,
+  setToken: setToken
 }

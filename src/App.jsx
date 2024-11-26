@@ -1,10 +1,15 @@
 import Course from "./components/Course"
 import Note from './components/Note'
 import axios from 'axios'
+
 import { useState, useEffect } from "react"
 import { v4 as uuidv4 } from 'uuid';
+
 import noteService from './services/Notes'
 import numberService from './services/Numbers'
+import loginService from './services/login'
+import blogService from './services/Blogs'
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'
 
@@ -16,6 +21,10 @@ const App = () => {
   const [newName, setNewName]= useState('')
   const [newNumber, setNewNumber] = useState('')
   const [message, setMessage] = useState('')
+  
+  const [username, setUsername] = useState('') 
+  const [password, setPassword] = useState('')
+  const [user, setUser] = useState(null)
   useEffect(()=>{
     numberService.getAll()
     .then(data=>{
@@ -24,8 +33,6 @@ const App = () => {
     })
     
   }, [])
-  
-  
   
   const handleNameChange = (e)=>{
     console.log(e.target.value)
@@ -92,27 +99,154 @@ const App = () => {
   ////////
 //NOTES
   const [notes, setNotes] = useState([])
-  const [newNote, setNewNote] = useState('a new note...')
+  const [newNote, setNewNote] = useState('')
   const [showAll, setShowAll] = useState(true)
 
-  useEffect(()=>{
-    noteService
-    .getAll()
-    .then(
-      response => {
-        console.log('NOTES', response.data)
-        setNotes(response.data)
-      })
+  // useEffect(()=>{
+  //   noteService
+  //   .getAll()
+  //   .then(
+  //     response => {
+  //       const notes = response.data
+  //       console.log("Notes :",notes)
+  //       const loggedUserJSON = window.localStorage.getItem('loggedNoteappUser')
+  //       const user = JSON.parse(loggedUserJSON)
+        
+  //       if (user) {
+  //         const filteredNotes = notes.filter(note => note.user.username === user.username);
+  //         setNotes(filteredNotes);
+  //       }
+        
+  //     })
+  // }, [])
+  // useEffect(() => {
+  //   const loggedUserJSON = window.localStorage.getItem('loggedNoteappUser');
+    
+  //   if (loggedUserJSON) {
+  //     const user = JSON.parse(loggedUserJSON);
+  //     setUser(user);
+  //     noteService.setToken(user.token); // Set token for requests
+  
+  //     noteService.getAll()
+  //       .then(response => {
+  //         const notes = response.data;
+  //         console.log("Fetched notes:", notes);
+  //         if (user) {
+  //           const filteredNotes = notes.filter(
+  //             note => note.user && note.user.username === user.username
+  //           );
+  //           setNotes(filteredNotes);
+  //         }
+  //       })
+  //       .catch(error => {
+  //         console.error("Error fetching notes:", error);
+  //       });
+  //   } else {
+  //     console.warn("No logged-in user found.");
+  //   }
+  // }, []);
+  useEffect(() => {
+    if (user) { // Fetch notes only when user is available
+      noteService.getAll()
+        .then(response => {
+          const notes = response.data;
+          console.log("Fetched notes:", notes);
+          const filteredNotes = notes.filter(
+            note => note.user && note.user.username === user.username
+          );
+          setNotes(filteredNotes);
+        })
+        .catch(error => {
+          console.error("Error fetching notes:", error);
+        });
+    }
+  }, [user]);
+  
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedNoteappUser')
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON)
+      setUser(user)
+      noteService.setToken(user.token)
+      blogService.setToken(user.token)
+      // console.log(user.name, user.username)
+    }
   }, [])
 
   //conditional rendering for const [notes, setNotes] = useState(null)
   //if (!notes) { 
   //  return null 
   //}
-
-  const addNote = (event)=>{
+  const handleLogin = async (event) => {
     event.preventDefault();
-    if(newNote.trim() === '') return;
+    try {
+      const response = await loginService.login({username, password})
+      const user = response.data
+      console.log(user.token)
+      window.localStorage.setItem(
+        'loggedNoteappUser', JSON.stringify(user)
+      ) 
+      setUser(user) 
+      noteService.setToken(user.token)
+      blogService.setToken(user.token)
+      setUsername('')
+      setPassword('')
+    } catch (error) {
+      setMessage('Wrong credentials')
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000)
+    }
+  }
+  const handleLogout = () => {
+    window.localStorage.clear(); // Clears all data from localStorage
+    setUser(null); // Resets the user state
+  };
+  const logoutButton = () => (
+    <button type="button" onClick={handleLogout}>
+      Logout
+    </button>
+  );
+  const loginForm = () => (
+    <form onSubmit={handleLogin}>
+      <div>
+        username
+          <input
+          type="text"
+          value={username}
+          name="Username"
+          onChange={({ target }) => setUsername(target.value)}
+        />
+      </div>
+      <div>
+        password
+          <input
+          type="password"
+          value={password}
+          name="Password"
+          onChange={({ target }) => setPassword(target.value)}
+        />
+      </div>
+      <button type="submit">login</button>
+    </form>      
+  )
+  const noteForm = () => (
+    <form onSubmit={addNote}>
+      <input
+        value={newNote}
+        onChange={handleNoteChange}
+        placeholder="Write a note"
+      />
+      <button type="submit">save</button>
+    </form>  
+  )
+  const addNote = (event)=>{
+    console.log("user ",user)
+    event.preventDefault();
+    if(newNote.trim() === '' || newNote.length < 3) {
+      setMessage(`note must be > 3 letters"`);
+      return
+    }
     const noteObject = {
       content: newNote,
       important: Math.random() < 0.5,
@@ -120,14 +254,17 @@ const App = () => {
     noteService
     .create(noteObject)
     .then(response => {
+      console.log("addnote button response: ", response.data)
       setNotes(notes.concat(response.data))
+      const userID = response.data.user
       setNewNote('')
-      setMessage(`Added "${newNote}"`);
+      setMessage(`Added`);
     })
     .catch(error=>{
       setMessage(error);
     })
   }
+  
   const handleNoteChange = (event)=>{
     console.log(event.target.value)
     setNewNote(event.target.value)
@@ -171,7 +308,7 @@ const App = () => {
       });
   };
   
-  const notesToShow = showAll ? notes : notes.filter(note => note.important === true)
+  const notesToShow = showAll ? notes : notes.filter(note => (note.important === true))
 
   
   const Notification = ({msg})=>{
@@ -280,11 +417,153 @@ const App = () => {
       
   },[weatherSearch])
 
-  return(
 
+  //blogss
+  const [blogs, setBlogs] = useState([])
+  const [newBlog, setNewBlog] = useState({
+    title: '',
+    author: '',
+    content: '',
+  });
+  const handleBlogChange = (event) => {
+    const { name, value } = event.target;
+    setNewBlog({
+      ...newBlog,
+      [name]: value, // Dynamically update the specific field
+    });
+  };
+  
+  useEffect(() => {
+    if (user) { // Fetch notes only when user is available
+      blogService.getAll()
+        .then(response => {
+          const blogs = response.data;
+
+          const filteredBlogs = blogs.filter(
+            blog => blog.user && blog.user.username === user.username
+          );
+          setBlogs(filteredBlogs);
+        })
+        .catch(error => {
+          console.error("Error fetching notes:", error);
+        });
+    }
+  }, [user]);
+  const addBlog = (event) => {
+    event.preventDefault();
+    console.log("Adding blog:", newBlog);
+  
+    blogService
+      .create(newBlog)
+      .then((response) => {
+        console.log("Blog added:", response.data);
+        setBlogs((prevBlogs) => prevBlogs.concat(response.data)); // Update blogs list
+        setNewBlog({ title: '', author: '', content: '' }); // Clear form inputs
+        setMessage(`Added "${newNote}"`);
+      })
+      .catch((error) => {
+        console.error("Error adding blog:", error);
+      });
+  };
+  const blogForm = () => (
+    <form onSubmit={addBlog}>
+      <input
+        name="title" // Input name matches the field in the state
+        value={newBlog.title}
+        onChange={handleBlogChange}
+        placeholder="Write title"
+      />
+      <input
+        name="author"
+        value={newBlog.author}
+        onChange={handleBlogChange}
+        placeholder="Write author name"
+      />
+      <input
+        name="content"
+        value={newBlog.content}
+        onChange={handleBlogChange}
+        placeholder="Write content"
+      />
+      <button type="submit">save</button>
+    </form>
+  );
+  
+  
+  const removeBlog = (id)=>{
+    console.log("removeUser",id);
+    blogService
+    .remove(id)
+    .then(res =>{
+      const updatedBlogs = blogs.filter(blog => blog._id !== id);
+      setBlogs(updatedBlogs);
+      setMessage("Deleted  Blogs")
+    }).catch(error => {
+      console.error("Failed to delete blog:", error);
+    });
+  }
+  
+  return(
+          
       <div>
+        
         {message ? <Notification msg= {message}></Notification> : null}
-      <div className="parts">
+        <div className="parts">
+          <h1>NoteApp</h1>
+          {user === null ?
+            loginForm() :
+            <div>
+              <p>{user.name} logged-in</p>
+              <div>
+                <h3>Add note</h3>
+                {noteForm()}
+              </div>
+              <div>
+              <h3>Add blog</h3>
+                {blogForm()}
+              </div>
+            </div>
+          }
+        
+        </div>
+
+        {user &&
+            <div className="parts">
+              <h1>Notes</h1>
+              <button onClick={()=> setShowAll(!showAll)}>
+                show {showAll ? 'important' : 'all'}
+              </button>
+              <ul>
+              {notesToShow.map(note =>
+                <Note 
+                  note={note} 
+                  key={note._id} // Use the note's id as the key
+                  handleNoteDelete={() => handleNoteDelete(note._id)} 
+                  toggleImportance={() => toggleImportanceOfNote(note._id)} 
+                />
+              )}
+              </ul>
+            </div>
+            }
+        {user &&
+            <div className="parts">
+              <h1>Blogs</h1>
+              <ul>
+              {blogs.map(blog => (
+                <li key={blog._id}>
+                  <h4>{blog.title}</h4>
+                  <h5>{blog.author}</h5>
+                  <p>{blog.content}</p>
+                  <button onClick={()=>removeBlog(blog._id)}>Delete</button>
+                </li>
+              ))}
+              </ul>
+            </div>
+          }
+      
+      {user && logoutButton()}
+      
+      {/* <div className="parts">
         <h1>Weather</h1> 
         <form onSubmit={onWeatherSearch}>
             <input value={city} onChange={handleCity} />
@@ -299,9 +578,10 @@ const App = () => {
             <p>Wind Speed: {weatherDetails.wind.speed} m/s</p>
           </div>
         )}
-      </div>
+      </div> */}
+      
 
-      <div className="parts">
+      {/* <div className="parts">
         <h1>Currency</h1>
         <form onSubmit={onSearch}>
           <input value={value} onChange={handleChange} />
@@ -361,30 +641,10 @@ const App = () => {
           <button type="submit" >Add number</button>
         </div>
       </form>
-    </div>
-      <div className="parts">
-       <h1>Notes</h1>
-       <button onClick={()=> setShowAll(!showAll)}>
-         show {showAll ? 'important' : 'all'}
-       </button>
-       <ul>
-       {notesToShow.map(note =>
-        <Note 
-          note={note} 
-          key={note._id} // Use the note's id as the key
-          handleNoteDelete={() => handleNoteDelete(note._id)} 
-          toggleImportance={() => toggleImportanceOfNote(note._id)} 
-        />
-      )}
-       </ul>
-       <form onSubmit={addNote}>
-         <input value ={newNote} onChange={handleNoteChange} />
-         <button type="submit">Save</button>
-       </form>
-       <Footer></Footer>
-     </div>
+    </div> */}
+      
     
-     
+      <Footer></Footer>
     </div>
   )
 
