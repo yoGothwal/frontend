@@ -7,5 +7,10 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',  // Allow access from outside
     port: 5173,       // Use the port your app runs on
-},
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './testSetup.js',
+  }
 })

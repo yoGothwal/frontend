@@ -4,6 +4,93 @@
   padding: 2rem;
   text-align: center;
 }
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 90vh;
+}
+.main-content {
+  flex: 1; /* Makes the content area grow to fill available space */
+}
+.heading {
+  color: white;
+  background-color: #008000;
+  font-style: italic;
+}
+.login-form {
+  max-width: 400px;
+  margin: 50px auto; /* Center the form on the page */
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.login-form h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.login-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Adds space between form elements */
+}
+
+.login-form label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: inline-block;
+  color: #555;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.login-form input:focus {
+  outline: none;
+  border-color: #007bff; /* Highlight the input when focused */
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+}
+
+.login-form button {
+  padding: 10px;
+  background-color: #008000;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-form button:hover {
+  background-color: #0bbb0b;
+}
+
+.login-form button:active {
+  background-color: #004085;
+}
+
+.login-form div {
+  display: flex;
+  flex-direction: column;
+}
+
+footer {
+  background: #f8f9fa;
+  padding: 1rem;
+  text-align: center;
+  border-top: 1px solid #ddd;
+}
 
 .logo {
   height: 6em;
