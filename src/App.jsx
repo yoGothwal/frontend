@@ -27,6 +27,7 @@ const api_key = import.meta.env.VITE_SOME_KEY;
 
 const App = () => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(""); //for notification
 
   useEffect(() => {
@@ -37,6 +38,7 @@ const App = () => {
       noteService.setToken(user.token);
       blogService.setToken(user.token);
     }
+    setLoading(false);
   }, []);
 
   const handleLogin = async ({ username, password }) => {
@@ -101,7 +103,6 @@ const App = () => {
   const [blogs, setBlogs] = useState([]);
   useEffect(() => {
     if (user) {
-      // Fetch notes only when user is available
       blogService
         .getAll()
         .then((response) => {
@@ -117,6 +118,10 @@ const App = () => {
         });
     }
   }, [user]);
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="app-container">
       <div className="main-content">
