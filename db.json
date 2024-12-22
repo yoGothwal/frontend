@@ -1,10 +1,24 @@
 {
-  "notes": [],
-  "persons": [
+  "notes": [
     {
-      "id": "f30b9753-8d23-4226-b38e-759e6e3e9250",
-      "name": "Rohit",
-      "number": "7073811601"
+      "id": "9d8f",
+      "content": "koo",
+      "important": false
     }
-  ]
+  ],
+  "persons": [],
+  "login": [
+    {
+      "id": "be00",
+      "username": "yogi",
+      "password": "1234"
+    },
+    {
+      "id": "aee2",
+      "username": "ookk",
+      "password": "ookk"
+    }
+  ],
+  "users": [],
+  "blogs": []
 }

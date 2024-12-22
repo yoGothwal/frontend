@@ -1,14 +1,16 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
+import { useField } from "./CustonHooks.jsx";
 const LoginForm = ({ handleLogin }) => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const username = useField("text");
+  const password = useField("password");
 
   const onSubmit = (event) => {
+    console.log(username.value);
     event.preventDefault();
-    handleLogin({ username, password });
-    setUsername("");
-    setPassword("");
+    handleLogin({ username: username.value, password: password.value });
+    username.reset();
+    password.reset();
   };
 
   return (
@@ -20,9 +22,9 @@ const LoginForm = ({ handleLogin }) => {
           <input
             data-testid="username"
             id="username"
-            type="text"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
+            type={username.type}
+            value={username.value}
+            onChange={username.onChange}
             placeholder="Enter your username"
           />
         </div>
@@ -31,9 +33,9 @@ const LoginForm = ({ handleLogin }) => {
           <input
             data-testid="password"
             id="password"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            type={password.type}
+            value={password.value}
+            onChange={password.onChange}
             placeholder="Enter your password"
           />
         </div>

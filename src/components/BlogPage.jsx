@@ -1,10 +1,10 @@
-import Blog from "./Blog";
-import Togglable from "./Togglable";
-import BlogForm from "./BlogForm";
-import BlogContent from "./BlogContent";
+import Blog from "./Blog.jsx";
+import Togglable from "./Togglable.jsx";
+import BlogForm from "./BlogForm.jsx";
+import BlogContent from "./BlogContent.jsx";
 
-import blogService from "../services/Blogs";
-import { useState, useEffect, useRef } from "react";
+import blogService from "../services/Blogs.jsx";
+import { useState, useRef } from "react";
 
 const BlogPage = ({ blogs, setBlogs }) => {
   const [message, setMessage] = useState("");
@@ -12,7 +12,6 @@ const BlogPage = ({ blogs, setBlogs }) => {
 
   const addBlog = (newBlog) => {
     blogFormRef.current.toggleVisibility();
-    console.log("Adding blog:", newBlog);
 
     blogService
       .create(newBlog)

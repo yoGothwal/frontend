@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "webpack --mode production",
     "lint": "eslint .",
+    "start": "webpack serve --open",
     "preview": "vite preview",
     "server": "json-server -p3001 --watch db.json",
     "test": "playwright test",
@@ -15,10 +16,13 @@
   "dependencies": {
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
+    "core-js": "^3.39.0",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
+    "react-bootstrap": "^2.10.7",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.0.2",
+    "regenerator-runtime": "^0.14.1",
     "uuid": "^11.0.2"
   },
   "devDependencies": {

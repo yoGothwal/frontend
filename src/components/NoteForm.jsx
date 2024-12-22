@@ -1,14 +1,16 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
+import { useField } from "./CustonHooks.jsx";
 const NoteForm = ({ createNote }) => {
-  const [newNote, setNewNote] = useState("");
+  const newNote = useField("");
   const addNote = (event) => {
     event.preventDefault();
     createNote({
-      content: newNote,
+      content: newNote.value,
       important: Math.random() < 0.5,
     });
-    setNewNote("");
+    newNote.reset();
+    // setNewNote("");
   };
 
   return (
@@ -17,8 +19,9 @@ const NoteForm = ({ createNote }) => {
 
       <form onSubmit={addNote}>
         <input
-          value={newNote}
-          onChange={(event) => setNewNote(event.target.value)}
+          value={newNote.value}
+          type={newNote.type}
+          onChange={newNote.onChange}
           placeholder="Write a note"
         />
 

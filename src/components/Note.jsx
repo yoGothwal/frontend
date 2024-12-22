@@ -5,9 +5,9 @@ const Note = ({ note, toggleImportance, handleNoteDelete }) => {
   const label = note.important ? "make not important" : "make important";
   return (
     <li className="note">
-      <Link to={`/notes/${note._id}`}> Your awesome note: {note.content}</Link>
-      <button onClick={toggleImportance}>{label}</button>
-      <button onClick={handleNoteDelete}>Delete</button>
+      <Link to={`/notes/${note._id}`}>{note.content}...</Link>
+      <button onClick={() => toggleImportance(note._id)}>{label}</button>
+      <button onClick={() => handleNoteDelete(note._id)}>Delete</button>
     </li>
   );
 };

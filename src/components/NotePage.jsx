@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import NoteForm from "./NoteForm";
 import Note from "./Note";
 import Togglable from "./Togglable";
 import noteService from "../services/Notes";
-
 const NotePage = ({ notes, setNotes }) => {
   const [showAll, setShowAll] = useState(true);
   const [message, setMessage] = useState("");
@@ -26,8 +25,8 @@ const NotePage = ({ notes, setNotes }) => {
       .create(noteObject)
       .then((response) => {
         setNotes(notes.concat(response.data));
-        setMessage("Note added successfully!");
-        console.log(response.data);
+
+        console.log("Note added:", response.data);
         setTimeout(() => {
           setMessage("");
         }, 3000);
@@ -42,6 +41,7 @@ const NotePage = ({ notes, setNotes }) => {
 
   const toggleImportanceOfNote = (id) => {
     const note = notes.find((n) => n._id === id);
+    console.log("note to be changed", note);
     if (!note) return;
     const changedNote = { ...note, important: !note.important };
 
@@ -79,16 +79,14 @@ const NotePage = ({ notes, setNotes }) => {
       <button onClick={() => setShowAll(!showAll)}>
         Show {showAll ? "important" : "all"}
       </button>
-      <ul>
-        {notesToShow.map((note) => (
-          <Note
-            key={note._id}
-            note={note}
-            handleNoteDelete={() => handleNoteDelete(note._id)}
-            toggleImportance={() => toggleImportanceOfNote(note._id)}
-          />
-        ))}
-      </ul>
+      {notesToShow.map((note) => (
+        <Note
+          key={note._id}
+          note={note}
+          handleNoteDelete={handleNoteDelete}
+          toggleImportance={toggleImportanceOfNote}
+        />
+      ))}
     </div>
   );
 };

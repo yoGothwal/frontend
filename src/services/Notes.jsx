@@ -15,11 +15,9 @@ const getAll = async () => {
     console.error("Token is missing! Set the token before making requests.");
     return;
   }
-  console.log("getall re");
   const config = {
     headers: { Authorization: token },
   };
-  console.log(config.headers);
   const response = await axios.get(baseUrl, config);
   return response;
 };

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import Togglable from "./Togglable";
-import LoginForm from "./loginForm";
+import Togglable from "./Togglable.jsx";
+import LoginForm from "./loginForm.jsx";
 import { useRef } from "react";
 
 const LoginPage = ({ handleLogin }) => {

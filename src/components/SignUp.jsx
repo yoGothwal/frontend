@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import signupServices from "../services/Signup";
+import signupServices from "../services/Signup.jsx";
 import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
