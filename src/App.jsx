@@ -6,32 +6,27 @@ import loginService from "./services/login.jsx";
 import blogService from "./services/Blogs.jsx";
 import NoteContent from "./components/NoteContent.jsx";
 import { useState, useEffect, createContext } from "react";
-import {
-  Route,
-  Routes,
-  Link,
-  Navigate,
-  useNavigate,
-  useMatch,
-} from "react-router-dom";
+import { Route, Routes, Link, Navigate, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 // import "./App.css";
-
 import LoginPage from "./components/LoginPage.jsx";
 import BlogContent from "./components/BlogContent.jsx";
 import SignUp from "./components/SignUp.jsx";
 import ChatComponent from "./components/ChatComponent.jsx";
 
-const api_key = import.meta.env.VITE_SOME_KEY;
+import { setNotes } from "./reducers/noteSlice.js";
+import { setBlogs } from "./reducers/blogSlice.js";
+import { useDispatch, useSelector } from "react-redux";
 
+const api_key = import.meta.env.VITE_SOME_KEY;
 export const UserContext = createContext();
 const App = () => {
+  const dispatch = useDispatch();
   const [user, setUser] = useState();
-  const [notes, setNotes] = useState([]);
-  const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-
+  const notes = useSelector((state) => state.notes);
+  const blogs = useSelector((state) => state.blogs);
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedNoteappUser");
     if (loggedUserJSON) {
@@ -54,7 +49,7 @@ const App = () => {
             (note) => note.user && note.user.username === user.username
           );
           console.log("Notes:", filteredNotes);
-          setNotes(filteredNotes);
+          dispatch(setNotes(filteredNotes));
         })
         .catch((error) => {
           console.error("Error fetching notes:", error);
@@ -68,12 +63,12 @@ const App = () => {
         .getAll()
         .then((response) => {
           const blogs = response.data;
-          console.log("blogs:", blogs);
+          console.log("Blogs:", blogs);
 
           const filteredBlogs = blogs.filter(
             (blog) => blog.user && blog.user.username === user.username
           );
-          setBlogs(filteredBlogs);
+          dispatch(setBlogs(filteredBlogs));
         })
         .catch((error) => {
           console.error("Error fetching vlogs:", error);
@@ -85,7 +80,7 @@ const App = () => {
       const response = await loginService.login({ username, password });
       const user = response.data;
       console.log("Loggin in:", user);
-      console.log("Token set to:", token);
+      console.log("Token set to:", user.token);
 
       window.localStorage.setItem("loggedNoteappUser", JSON.stringify(user));
       setUser(user);
@@ -122,7 +117,7 @@ const App = () => {
 
   return (
     <UserContext.Provider value={{ user: user }}>
-      <div>
+      <div className="container">
         <div className="main-content">
           <h1 className="heading">Social Media</h1>
           {message ? <Notification msg={message}></Notification> : null}

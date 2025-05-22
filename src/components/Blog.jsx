@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-const Blog = ({ blog, likeBlog, removeBlog, content }) => {
+const Blog = ({ blog, likeBlog, removeBlog }) => {
   return (
     <li key={blog._id}>
       <h3>Title: {blog.title}</h3>

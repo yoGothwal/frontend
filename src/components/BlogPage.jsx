@@ -6,10 +6,17 @@ import BlogContent from "./BlogContent.jsx";
 import blogService from "../services/Blogs.jsx";
 import { useState, useRef } from "react";
 
+import { appendBlog } from "../reducers/blogSlice.js";
+import { useDispatch } from "react-redux";
 const BlogPage = ({ blogs, setBlogs }) => {
+  const [sort, setSort] = useState(false);
+  const blogToShow = sort
+    ? [...blogs].sort((a, b) => b.likes - a.likes)
+    : blogs;
+
+  const dispatch = useDispatch();
   const [message, setMessage] = useState("");
   const blogFormRef = useRef();
-
   const addBlog = (newBlog) => {
     blogFormRef.current.toggleVisibility();
 
@@ -17,7 +24,7 @@ const BlogPage = ({ blogs, setBlogs }) => {
       .create(newBlog)
       .then((response) => {
         console.log("Blog added:", response.data);
-        setBlogs((prevBlogs) => prevBlogs.concat(response.data)); // Update blogs list
+        dispatch(appendBlog(response.data));
         setMessage(`Added "${newBlog.content}"`);
         setTimeout(() => {
           setMessage("");
@@ -32,9 +39,9 @@ const BlogPage = ({ blogs, setBlogs }) => {
     console.log("removeUser", id);
     blogService
       .remove(id)
-      .then((res) => {
+      .then(() => {
         const updatedBlogs = blogs.filter((blog) => blog._id !== id);
-        setBlogs(updatedBlogs);
+        dispatch(setBlogs(updatedBlogs));
         setMessage("Deleted  Blogs");
         setTimeout(() => {
           setMessage("");
@@ -61,7 +68,7 @@ const BlogPage = ({ blogs, setBlogs }) => {
       const updatedBlogs = blogs.map((blog) =>
         blog._id === id ? response.data : blog
       );
-      setBlogs(updatedBlogs);
+      dispatch(setBlogs(updatedBlogs));
       setMessage("Liked");
       setTimeout(() => {
         setMessage("");
@@ -71,10 +78,7 @@ const BlogPage = ({ blogs, setBlogs }) => {
     }
   };
   const sortBlogsByLikes = () => {
-    const newBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
-    console.log("clicked");
-    console.log(newBlogs);
-    setBlogs(newBlogs);
+    setSort(true);
   };
   return (
     <div className="parts">
@@ -83,19 +87,20 @@ const BlogPage = ({ blogs, setBlogs }) => {
       <Togglable buttonLabel="New Blog" ref={blogFormRef}>
         <BlogForm createBlog={addBlog} />
       </Togglable>
-      <button onClick={() => sortBlogsByLikes(blogs)}>sort</button>
-      <ul>
-        {blogs.map((blog) => (
-          <div key={blog._id}>
-            <Blog
-              blog={blog}
-              likeBlog={likeBlog}
-              removeBlog={removeBlog}
-              content={content(blog.content)}
-            ></Blog>
-          </div>
-        ))}
-      </ul>
+      <button onClick={() => setSort(!sort)}>
+        {sort === false ? "sort" : "original"}
+      </button>
+
+      {blogToShow.map((blog) => (
+        <div key={blog._id}>
+          <Blog
+            blog={blog}
+            likeBlog={likeBlog}
+            removeBlog={removeBlog}
+            content={content(blog.content)}
+          ></Blog>
+        </div>
+      ))}
     </div>
   );
 };

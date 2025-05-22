@@ -22,7 +22,7 @@ const ChatComponent = () => {
 
   const sendMessage = () => {
     //socket.emit("chat message", message); // Emit the message to the server
-    setMessage(""); // Clear input after sending the message
+    setMessage("chat happened"); // Clear input after sending the message
   };
 
   return (

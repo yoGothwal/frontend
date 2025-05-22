@@ -1,12 +1,17 @@
 import React, { useState, useRef } from "react";
+
+import { useDispatch, useSelector } from "react-redux";
 import NoteForm from "./NoteForm";
 import Note from "./Note";
 import Togglable from "./Togglable";
 import noteService from "../services/Notes";
+import store from "../reducers/noteSlice";
+import { appendNote } from "../reducers/noteSlice";
 const NotePage = ({ notes, setNotes }) => {
   const [showAll, setShowAll] = useState(true);
   const [message, setMessage] = useState("");
   const noteFormRef = useRef();
+  const dispatch = useDispatch();
 
   const notesToShow = showAll
     ? notes
@@ -24,7 +29,7 @@ const NotePage = ({ notes, setNotes }) => {
     noteService
       .create(noteObject)
       .then((response) => {
-        setNotes(notes.concat(response.data));
+        dispatch(appendNote(response.data));
 
         console.log("Note added:", response.data);
         setTimeout(() => {
@@ -48,11 +53,13 @@ const NotePage = ({ notes, setNotes }) => {
     noteService
       .update(id, changedNote)
       .then((response) => {
-        setNotes(notes.map((n) => (n._id === id ? response.data : n)));
+        dispatch(
+          setNotes(notes.map((n) => (n._id === id ? response.data : n)))
+        );
       })
       .catch((error) => {
         console.error("Error toggling importance:", error.message);
-        setNotes(notes.filter((n) => n._id !== id));
+        store.dispatch(setNotes(notes.filter((n) => n._id !== id)));
       });
   };
 
@@ -60,7 +67,7 @@ const NotePage = ({ notes, setNotes }) => {
     noteService
       .remove(id)
       .then(() => {
-        setNotes(notes.filter((note) => note._id !== id));
+        dispatch(setNotes(notes.filter((note) => note._id !== id)));
         setMessage("Note deleted successfully.");
       })
       .catch((error) => {
